@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Фітнес-фінанс: від дивана до мільйона — Life Energy</title>
+<style>
+  :root{
+    --green:#2fae6a; --green-light:#8bd18f; --blue:#2f6fae; --blue-deep:#1c3f66;
+    --yellow:#f3c34e; --bg-soft:#f6f8f7; --text:#1a2b28;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+    background:linear-gradient(180deg,#eaf6ef 0%,var(--bg-soft) 45%);
+    color:var(--text); min-height:100vh; display:flex; justify-content:center;
+    padding:22px 12px 60px;
+  }
+  .card{width:100%; max-width:540px; background:#fff; border-radius:22px;
+    box-shadow:0 10px 40px rgba(20,60,40,0.12); padding:26px 20px 30px;}
+  .logo{display:flex; align-items:center; gap:10px; margin-bottom:14px;}
+  .logo-badge{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));flex-shrink:0;}
+  .logo-text{font-weight:700; color:var(--blue-deep);}
+  h1{font-size:1.3rem; color:var(--blue-deep); margin:4px 0 6px;}
+  .sub{color:#5b6b66; font-size:0.94rem; margin-bottom:20px;}
+  .screen{display:none;}
+  .screen.active{display:block; animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  .price-box{background:linear-gradient(135deg,var(--green),var(--blue)); color:#fff; border-radius:18px; padding:22px; text-align:center; margin-bottom:16px;}
+  .price-box .amount{font-size:2rem; font-weight:800;}
+  .price-box .sub2{font-size:0.85rem; opacity:0.9; margin-top:4px;}
+  .code-input{width:100%; padding:13px 14px; border-radius:12px; border:1.5px solid #dde6e1; margin:14px 0; font-size:0.95rem;}
+  .hint{font-size:0.82rem; color:#93a29d; margin-top:8px;}
+
+  .progress{height:6px; background:#e7efe9; border-radius:99px; overflow:hidden; margin-bottom:22px;}
+  .progress-bar{height:100%; width:0%; background:linear-gradient(90deg,var(--green),var(--blue)); transition:width .3s ease;}
+  .q{display:none;} .q.active{display:block;}
+  .q h3{font-size:1.05rem; margin-bottom:12px;}
+  .opt{display:block; width:100%; text-align:left; background:var(--bg-soft); border:2px solid transparent;
+    border-radius:14px; padding:13px 15px; margin-bottom:9px; font-size:0.96rem; cursor:pointer;}
+  .opt.selected{border-color:var(--green); background:#eaf7ee; font-weight:600;}
+  .nav{display:flex; justify-content:space-between; margin-top:14px;}
+  .btn{border:none; border-radius:12px; padding:12px 20px; font-size:0.94rem; cursor:pointer; font-weight:600;}
+  .btn-primary{background:var(--green); color:#fff;}
+  .btn-primary:disabled{background:#c9dfd0; cursor:not-allowed;}
+  .btn-ghost{background:transparent; color:#7c8a86;}
+  .btn-block{width:100%; text-align:center; display:block; margin-top:12px;}
+
+  .badge-row{display:flex; gap:8px; flex-wrap:wrap; margin:14px 0 20px;}
+  .badge{background:var(--bg-soft); border-radius:99px; padding:6px 12px; font-size:0.8rem; color:#5b6b66;}
+  .streak{font-weight:700; color:var(--green); font-size:1.05rem;}
+
+  .week{border:1.5px solid #e7efe9; border-radius:16px; padding:16px; margin-bottom:14px;}
+  .week.locked{opacity:0.45; pointer-events:none;}
+  .week-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
+  .week-head h3{margin:0; font-size:1rem; color:var(--blue-deep);}
+  .week-tag{font-size:0.75rem; background:var(--yellow); color:#5a4300; padding:3px 9px; border-radius:99px; font-weight:700;}
+  .task{display:flex; align-items:flex-start; gap:10px; padding:9px 0; border-top:1px solid #f0f4f1;}
+  .task:first-of-type{border-top:none;}
+  .task input{margin-top:3px; width:18px; height:18px; accent-color:var(--green);}
+  .task label{font-size:0.93rem; line-height:1.4; cursor:pointer;}
+  .task.done label{color:#8a9c96; text-decoration:line-through;}
+  .day-tag{font-size:0.72rem; color:#93a29d; margin-right:6px;}
+
+  .reflect-box{background:var(--bg-soft); border-radius:14px; padding:14px; margin-top:10px;}
+  .reflect-box textarea{width:100%; min-height:80px; border-radius:10px; border:1.5px solid #dde6e1; padding:10px; font-size:0.92rem; font-family:inherit; resize:vertical;}
+  .reflect-box .note-label{font-size:0.88rem; color:var(--blue-deep); font-weight:600; margin-bottom:6px; display:block;}
+  .reflect-saved{font-size:0.82rem; color:var(--green); margin-top:6px; display:none;}
+
+  .result-card{background:linear-gradient(135deg,var(--green),var(--blue)); color:#fff; border-radius:18px; padding:22px; text-align:center; margin-bottom:18px;}
+  .result-card .big{font-size:2.4rem; font-weight:800; margin-bottom:4px;}
+  .result-card .lbl{font-size:0.85rem; opacity:0.9;}
+
+  .gift-box{background:#fff7e0; border:1.5px solid var(--yellow); border-radius:14px; padding:16px; margin:16px 0; font-size:0.92rem; color:#5a4300;}
+  .gift-box input, .gift-box textarea{width:100%; padding:11px 13px; border-radius:10px; border:1.5px solid #ecd9a0; margin-top:8px; font-size:0.9rem;}
+
+  .share-box{background:var(--bg-soft); border-radius:14px; padding:16px; text-align:center; font-size:0.92rem; color:#41504c; margin-top:8px;}
+
+  .cta-tg{background:var(--green); color:#fff; text-decoration:none;}
+  .cta-form{background:transparent; color:var(--blue-deep); border:2px solid var(--blue-deep); cursor:pointer;}
+
+  .lead-form{margin-top:14px; display:none;}
+  .lead-form.active{display:block;}
+  .lead-form input{width:100%; padding:12px 14px; border-radius:12px; border:1.5px solid #dde6e1; margin-bottom:9px; font-size:0.94rem;}
+  .status-msg{font-size:0.86rem; color:var(--green); margin-top:6px; text-align:center;}
+  .footnote{font-size:0.76rem; color:#93a29d; margin-top:18px; text-align:center;}
+  .error-msg{font-size:0.86rem; color:#c0392b; margin-top:6px; text-align:center;}
+</style>
+</head>
+<body>
+<div class="card">
+
+  <div class="logo"><div class="logo-badge"></div><div class="logo-text">Life Energy</div></div>
+
+  <!-- SCREEN -1: PAYWALL -->
+  <div class="screen active" id="screen-paywall">
+    <h1>Фітнес-фінанс: від дивана до мільйона 🏁</h1>
+    <div class="price-box">
+      <div class="amount">€1 / 51 грн</div>
+      <div class="sub2">Разовий символічний внесок — 6 тижнів практики</div>
+    </div>
+    <p class="sub">Чому не безкоштовно: маленька плата підвищує шанс, що ти дійсно пройдеш марафон, а не забудеш про нього завтра. Це вже перший крок дисципліни 🙂</p>
+    <a class="btn btn-primary btn-block" id="payBtn" href="https://surl.li/jvuldg" target="_blank" rel="noopener">Оплатити €1 / 51 грн</a>
+    <p class="hint">Після оплати напиши мені особисто в Telegram і додай скріншот або чек — у відповідь надішлю код доступу.</p>
+    <input type="text" class="code-input" id="accessCode" placeholder="Введи код доступу">
+    <button class="btn btn-primary btn-block" id="unlockBtn">Розпочати марафон →</button>
+    <div class="error-msg" id="codeError"></div>
+    <a class="btn btn-ghost btn-block" href="https://t.me/IrinaDemydova" target="_blank" rel="noopener">Написати мені в Telegram і надіслати чек</a>
+  </div>
+
+  <!-- SCREEN 0: INTRO -->
+  <div class="screen" id="screen-intro">
+    <h1>Ласкаво просимо до марафону 🏁</h1>
+    <p class="sub">6 тижнів, по 6 маленьких дій на тиждень (1 день — вихідний). Без тиску — тільки твій темп.</p>
+    <p class="sub">Спочатку — швидкий тест (3 хв), щоб зрозуміти, з чого почати саме тобі.</p>
+    <button class="btn btn-primary btn-block" id="startBtn">Почати тест →</button>
+  </div>
+
+  <!-- SCREEN 1: QUIZ -->
+  <div class="screen" id="screen-quiz">
+    <h1>Наскільки лад у твоїх фінансах?</h1>
+    <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+
+    <div class="q active" data-q="0">
+      <h3>1. Чи знаєш ти точно, скільки грошей витрачаєш щомісяця?</h3>
+      <button class="opt" data-v="2">Так, веду облік</button>
+      <button class="opt" data-v="1">Приблизно уявляю</button>
+      <button class="opt" data-v="0">Ні, зовсім не рахую</button>
+    </div>
+    <div class="q" data-q="1">
+      <h3>2. Чи є в тебе фінансова подушка на 3+ місяці витрат?</h3>
+      <button class="opt" data-v="2">Так, є</button>
+      <button class="opt" data-v="1">Є, але менше ніж на 3 місяці</button>
+      <button class="opt" data-v="0">Немає</button>
+    </div>
+    <div class="q" data-q="2">
+      <h3>3. Чи маєш ти письмовий фінансовий план на рік вперед?</h3>
+      <button class="opt" data-v="2">Так</button>
+      <button class="opt" data-v="1">Тримаю в голові, не записував</button>
+      <button class="opt" data-v="0">Ні</button>
+    </div>
+    <div class="q" data-q="3">
+      <h3>4. Чи інвестуєш ти або відкладаєш гроші системно (не випадково)?</h3>
+      <button class="opt" data-v="2">Так, регулярно</button>
+      <button class="opt" data-v="1">Іноді</button>
+      <button class="opt" data-v="0">Ні</button>
+    </div>
+    <div class="q" data-q="4">
+      <h3>5. Чи відчуваєш ти впевненість у своєму фінансовому майбутньому?</h3>
+      <button class="opt" data-v="2">Так, повністю</button>
+      <button class="opt" data-v="1">Частково</button>
+      <button class="opt" data-v="0">Ні, тривожусь</button>
+    </div>
+
+    <div class="nav">
+      <button class="btn btn-ghost" id="backBtn" style="visibility:hidden;">Назад</button>
+      <button class="btn btn-primary" id="nextBtn" disabled>Далі</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: RESULT -->
+  <div class="screen" id="screen-result">
+    <div class="result-card">
+      <div class="big" id="resultScore">0/10</div>
+      <div class="lbl">Твій фінансовий бал</div>
+    </div>
+    <p class="sub" id="resultText"></p>
+    <button class="btn btn-primary btn-block" id="beginMarathonBtn">Почати марафон 6 тижнів →</button>
+  </div>
+
+  <!-- SCREEN 3: MARATHON TRACKER -->
+  <div class="screen" id="screen-marathon">
+    <h1>Твій марафон 🏁</h1>
+    <p class="sub">6 дій на тиждень, 1 день — вихідний. Наступний тиждень відкривається лише після твоєї нотатки-враження.</p>
+    <div class="badge-row">
+      <div class="badge">🔥 Стрік: <span class="streak" id="streakVal">0</span></div>
+      <div class="badge">✅ Виконано: <span id="totalDone">0</span>/36</div>
+    </div>
+    <div id="weeksContainer"></div>
+    <button class="btn btn-primary btn-block" id="finishBtn" style="display:none;">Завершити марафон 🎉</button>
+  </div>
+
+  <!-- SCREEN 4: FINISH -->
+  <div class="screen" id="screen-finish">
+    <div class="result-card">
+      <div class="big">🎉</div>
+      <div class="lbl">Марафон завершено!</div>
+    </div>
+    <p class="sub">Ти пройшов(-ла) 6 тижнів "Фітнес-фінансу" — це вже більше, ніж робить 90% людей, які тільки думають почати.</p>
+
+    <div class="gift-box">
+      🎁 <b>Подарунок від партнерів Life Energy</b><br>
+      Опублікуй короткий відгук (пост чи відео) у своїх соцмережах з тегом Life Energy й познач нас — і отримаєш подарунок від наших партнерів.
+      <input type="text" id="reviewLink" placeholder="Встав посилання на твій пост/відео (коли опублікуєш)">
+      <button class="btn btn-primary btn-block" id="submitReview" style="margin-top:10px;">Надіслати посилання</button>
+      <div class="status-msg" id="reviewStatus"></div>
+    </div>
+
+    <div class="share-box" id="shareBox">Я пройшов(-ла) марафон "Фітнес-фінанс: від дивана до мільйона" від Life Energy 💪💰</div>
+    <button class="btn btn-ghost btn-block" id="copyShareBtn">Скопіювати текст для Stories</button>
+
+    <div class="lead-form" id="leadForm">
+      <input type="text" id="leadName" placeholder="Ім'я">
+      <input type="text" id="leadContact" placeholder="Telegram, телефон або email">
+      <button class="btn btn-primary" style="width:100%;" id="submitLead">Надіслати заявку</button>
+      <div class="status-msg" id="statusMsg"></div>
+    </div>
+
+    <a class="btn cta-tg btn-block" href="https://t.me/LifeEnergyUA_bot" target="_blank" rel="noopener">Записатись на безкоштовну зустріч (Telegram)</a>
+    <button class="btn cta-form btn-block" id="toggleForm">Залишити заявку без Telegram</button>
+  </div>
+
+  <p class="footnote">Life Energy не гарантує дохід чи результат — це орієнтовна практика, а не фінансова консультація.</p>
+</div>
+
+<script>
+  // ЗАМІНИ на URL свого розгорнутого Google Apps Script (Web App)
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxwoP-eRqDJpCK4MIzkr0fluyzXQ5OLc52nH6m287D8XHOQI7B45aNfCHixUoHiy6Vpcg/exec";
+  const STORAGE_KEY = "le_fitness_finance_progress_v2";
+
+  // ---------- План: 6 тижнів по 6 дій (1 день — вихідний) ----------
+  const plan = [
+    { title: "Тиждень 1 — Побач свої гроші", tasks: [
+      "Записати всі витрати за сьогодні",
+      "Записати всі витрати ще за один день",
+      "Знайти одну \"непомітну\" підписку чи платіж",
+      "Порахувати загальний дохід за місяць",
+      "Порахувати загальні витрати за місяць",
+      "Назвати одну фінансову емоцію, яку відчуваю зараз"
+    ]},
+    { title: "Тиждень 2 — Розбери завали", tasks: [
+      "Скласти список усіх щомісячних рахунків",
+      "Позначити один борг чи кредит, якщо є",
+      "Спробувати один день без імпульсивних покупок",
+      "Переглянути один банківський продукт, яким користуюсь",
+      "Скасувати або призупинити одну непотрібну підписку",
+      "Порахувати, скільки \"з'їдає\" одна звичка на тиждень"
+    ]},
+    { title: "Тиждень 3 — Перший подих полегшення", tasks: [
+      "Відкласти будь-яку суму окремо (навіть мінімальну)",
+      "Порахувати, скільки витрачаю на одну звичку на місяць",
+      "Написати одну фінансову ціль на 3 місяці",
+      "Скласти простий бюджет на наступний місяць",
+      "Знайти один спосіб заощадити цього тижня",
+      "Оцінити свій рівень фінансового стресу (1-10)"
+    ]},
+    { title: "Тиждень 4 — Перші м'язи", tasks: [
+      "Спробувати правило \"спочатку відклади, потім витрачай\"",
+      "Переглянути ще один фінансовий продукт, яким користуюсь",
+      "Поділитись прогресом з кимось (друг/родина)",
+      "Порівняти витрати цього тижня з минулим",
+      "Визначити одну звичку, яку хочу змінити",
+      "Відкласти ще одну суму на подушку безпеки"
+    ]},
+    { title: "Тиждень 5 — Готовність до подій", tasks: [
+      "Подумати, яка сума потрібна особисто мені на подушку",
+      "Дізнатись про один фінансовий інструмент (без купівлі)",
+      "Оцінити один фінансовий ризик у своєму житті",
+      "Прочитати короткий матеріал про страхування чи інвестиції",
+      "Порахувати, скільки я хочу заробляти через рік",
+      "Написати, що я вже зробив(-ла) добре за ці 5 тижнів"
+    ]},
+    { title: "Тиждень 6 — Погляд у майбутнє", tasks: [
+      "Написати фінансову ціль на рік",
+      "Оцінити, наскільки спокійніше стало за 6 тижнів (1-10)",
+      "Переглянути весь свій прогрес марафону",
+      "Написати короткий відгук про марафон",
+      "Поділитись результатом у Stories з тегом Life Energy",
+      "Вирішити, чи йти далі — до фінансового аналізу чи «Старту»"
+    ]}
+  ];
+
+  // ---------- Стан ----------
+  let state = loadState() || {
+    unlocked: false,
+    answers: new Array(5).fill(null),
+    completed: {},
+    notes: {},
+    streak: 0,
+    lastActionDate: null
+  };
+
+  function loadState(){
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch(e){ return null; }
+  }
+  function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // ---------- Paywall ----------
+  // Код(и), які Ірина видає в Telegram після перевірки чеку.
+  // Онови цей список, коли захочеш поміняти код (наприклад, раз на місяць).
+  const VALID_CODES = [
+    "LE-0ISMB","LE-0ULST","LE-1KSGM","LE-1SU16","LE-1T2LI",
+    "LE-2DUIJ","LE-39433","LE-3FA8T","LE-45YKI","LE-4EEPC",
+    "LE-57JU7","LE-5LZVU","LE-5QMT7","LE-5WFJM","LE-5ZJNG",
+    "LE-64RX2","LE-6W03F","LE-89TI8","LE-8H8OR","LE-8OO80",
+    "LE-8YSWY","LE-93FPS","LE-9B4KF","LE-9EP1F","LE-A20ST",
+    "LE-AFDNA","LE-AJA0T","LE-B6252","LE-BEMD4","LE-BKJY8",
+    "LE-C0JFD","LE-CDP3E","LE-CHFMB","LE-CYPC7","LE-CZX93",
+    "LE-DJB2J","LE-DOBAK","LE-DX621","LE-EL3GU","LE-EP63J",
+    "LE-F0XB4","LE-F39XM","LE-F7UZD","LE-FBHLK","LE-FTAT9",
+    "LE-FZXF5","LE-GA2GR","LE-GEC1E","LE-GEF63","LE-GIIRV",
+    "LE-GR7D3","LE-HIHHW","LE-HJKIV","LE-HYPLV","LE-ICY26",
+    "LE-IO5CQ","LE-IVT1X","LE-IW8UO","LE-J0H09","LE-JAPNU",
+    "LE-JESID","LE-JPE6M","LE-KNYAQ","LE-KQFQJ","LE-LFXCT",
+    "LE-LMANR","LE-MHLZA","LE-NCSBP","LE-NE49Q","LE-OM58F",
+    "LE-OODWC","LE-PR4OS","LE-PWSSY","LE-Q48RX","LE-Q798N",
+    "LE-QK2ZI","LE-QTR7Z","LE-QV6P7","LE-RBY1U","LE-RDDMJ",
+    "LE-RG2L2","LE-RNRY1","LE-S7P53","LE-SC928","LE-SHSAJ",
+    "LE-SS423","LE-STSAP","LE-T535K","LE-TEA8X","LE-TPALW",
+    "LE-US50K","LE-UWWYR","LE-V6YYI","LE-W2D4C","LE-WOMBE",
+    "LE-XC0JC","LE-XNTCC","LE-Y9M3Z","LE-Z5OL9"
+  ];
+
+  function checkManualUnlockLink(){
+    const params = new URLSearchParams(window.location.search);
+    return params.get('unlock') === '1';
+  }
+
+  if (state.unlocked || checkManualUnlockLink()){
+    state.unlocked = true;
+    saveState();
+    showScreen('screen-intro');
+  }
+
+  document.getElementById('unlockBtn').addEventListener('click', () => {
+    const code = document.getElementById('accessCode').value.trim().toUpperCase();
+    const errorEl = document.getElementById('codeError');
+    if (!code){
+      errorEl.textContent = 'Введи код доступу, який отримав(-ла) у Telegram після підтвердження оплати.';
+      return;
+    }
+    if (VALID_CODES.indexOf(code) === -1){
+      errorEl.textContent = 'Код не знайдено. Перевір правильність або напиши нам у Telegram.';
+      sendEvent('invalid_code_attempt', { code });
+      return;
+    }
+    errorEl.textContent = '';
+    state.unlocked = true;
+    state.enteredCode = code;
+    saveState();
+    sendEvent('marathon_unlocked', { code });
+    showScreen('screen-intro');
+  });
+
+  // ---------- Intro ----------
+  document.getElementById('startBtn').addEventListener('click', () => showScreen('screen-quiz'));
+
+  // ---------- Quiz ----------
+  const questions = document.querySelectorAll('#screen-quiz .q');
+  const total = questions.length;
+  let current = 0;
+  const nextBtn = document.getElementById('nextBtn');
+  const backBtn = document.getElementById('backBtn');
+  const progressBar = document.getElementById('progressBar');
+
+  function updateProgress(){ progressBar.style.width = (current/total*100) + '%'; }
+  function showQuestion(i){
+    questions.forEach(q => q.classList.remove('active'));
+    questions[i].classList.add('active');
+    backBtn.style.visibility = i === 0 ? 'hidden' : 'visible';
+    nextBtn.textContent = i === total - 1 ? 'Показати результат' : 'Далі';
+    nextBtn.disabled = state.answers[i] === null;
+    updateProgress();
+  }
+  questions.forEach((q, qi) => {
+    q.querySelectorAll('.opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        q.querySelectorAll('.opt').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        state.answers[qi] = parseInt(btn.dataset.v, 10);
+        saveState();
+        nextBtn.disabled = false;
+      });
+    });
+  });
+  backBtn.addEventListener('click', () => { if (current > 0){ current--; showQuestion(current); } });
+  nextBtn.addEventListener('click', () => {
+    if (current < total - 1){ current++; showQuestion(current); }
+    else { finishQuiz(); }
+  });
+
+  let resultKey = '';
+  function finishQuiz(){
+    const score = state.answers.reduce((a,b) => a + b, 0);
+    const confidentCount = state.answers.filter(v => v === 2).length;
+    let text;
+    if (confidentCount >= 4){
+      resultKey = 'A';
+      text = "У тебе вже хороша база. Марафон допоможе закріпити звички та піти на професійний рівень.";
+    } else if (confidentCount >= 2){
+      resultKey = 'B';
+      text = "Ти на правильному шляху, є кілька прогалин. 6 тижнів марафону саме заповнять їх.";
+    } else {
+      resultKey = 'C';
+      text = "Чесний і дуже поширений результат. Марафон — м'який спосіб почати, без тиску.";
+    }
+    document.getElementById('resultScore').textContent = score + '/10';
+    document.getElementById('resultText').textContent = text;
+    sendEvent('quiz_completed', { result: resultKey, score });
+    showScreen('screen-result');
+  }
+
+  // ---------- Marathon ----------
+  document.getElementById('beginMarathonBtn').addEventListener('click', () => {
+    renderMarathon();
+    showScreen('screen-marathon');
+    sendEvent('marathon_started', {});
+  });
+
+  function totalTasksCount(){ return plan.reduce((sum,w) => sum + w.tasks.length, 0); }
+
+  function isWeekComplete(wi){
+    return plan[wi].tasks.every((_, ti) => state.completed[wi + '_' + ti]);
+  }
+  function hasNote(wi){
+    return !!(state.notes[wi] && state.notes[wi].trim().length > 0);
+  }
+  function isWeekUnlocked(wi){
+    if (wi === 0) return true;
+    return isWeekComplete(wi - 1) && hasNote(wi - 1);
+  }
+
+  function renderMarathon(){
+    const container = document.getElementById('weeksContainer');
+    container.innerHTML = '';
+
+    // Знаходимо поточний активний тиждень — перший, що ще не завершено (завдання + нотатка)
+    let currentWeekIndex = plan.findIndex((_, wi) => !(isWeekComplete(wi) && hasNote(wi)));
+    if (currentWeekIndex === -1) currentWeekIndex = plan.length; // усе завершено
+
+    plan.forEach((week, wi) => {
+      const weekDiv = document.createElement('div');
+
+      if (wi < currentWeekIndex){
+        // Завершений тиждень — показуємо тільки згорнутий заголовок, без завдань
+        weekDiv.className = 'week';
+        weekDiv.innerHTML = `<div class="week-head"><h3>${week.title}</h3><span class="week-tag">✅ Завершено</span></div>`;
+        container.appendChild(weekDiv);
+        return;
+      }
+
+      if (wi > currentWeekIndex){
+        // Майбутній тиждень — повністю прихований, лише заглушка без жодних завдань
+        weekDiv.className = 'week locked';
+        weekDiv.innerHTML = `<div class="week-head"><h3>Тиждень ${wi + 1}</h3><span class="week-tag">🔒 Закрито</span></div>
+          <p style="font-size:0.88rem; color:#93a29d; margin:0;">Відкриється після завершення попереднього тижня й нотатки-враження.</p>`;
+        container.appendChild(weekDiv);
+        return;
+      }
+
+      // Поточний активний тиждень — показуємо повністю
+      weekDiv.className = 'week';
+      const doneCount = week.tasks.filter((_, ti) => state.completed[wi + '_' + ti]).length;
+      const tag = doneCount === week.tasks.length ? '✅ Всі дії виконано' : doneCount + '/' + week.tasks.length;
+      weekDiv.innerHTML = `<div class="week-head"><h3>${week.title}</h3><span class="week-tag">${tag}</span></div>`;
+
+      week.tasks.forEach((task, ti) => {
+        const key = wi + '_' + ti;
+        const done = !!state.completed[key];
+        const taskDiv = document.createElement('div');
+        taskDiv.className = 'task' + (done ? ' done' : '');
+        taskDiv.innerHTML = `<span class="day-tag">День ${ti+1}</span><input type="checkbox" id="t_${key}" ${done ? 'checked' : ''}><label for="t_${key}">${task}</label>`;
+        taskDiv.querySelector('input').addEventListener('change', (e) => {
+          toggleTask(wi, ti, e.target.checked);
+        });
+        weekDiv.appendChild(taskDiv);
+      });
+
+      if (doneCount === week.tasks.length){
+        const reflectDiv = document.createElement('div');
+        reflectDiv.className = 'reflect-box';
+        const savedNote = state.notes[wi] || '';
+        reflectDiv.innerHTML = `
+          <span class="note-label">Твоє враження за тиждень — що це дало тобі? (обов'язково, щоб відкрити наступний тиждень)</span>
+          <textarea id="note_${wi}" placeholder="Напиши кілька речень...">${savedNote}</textarea>
+          <button class="btn btn-primary btn-block" id="saveNote_${wi}">Зберегти й відкрити наступний тиждень</button>
+          <div class="reflect-saved" id="noteSaved_${wi}" style="display:${savedNote ? 'block':'none'};">Збережено ✓</div>
+        `;
+        weekDiv.appendChild(reflectDiv);
+        reflectDiv.querySelector(`#saveNote_${wi}`).addEventListener('click', () => {
+          const val = document.getElementById(`note_${wi}`).value.trim();
+          if (!val){ return; }
+          state.notes[wi] = val;
+          saveState();
+          sendEvent('week_reflection', { week: wi + 1, note: val });
+          renderMarathon();
+        });
+      }
+
+      container.appendChild(weekDiv);
+    });
+    updateBadges();
+  }
+
+  function toggleTask(wi, ti, checked){
+    const key = wi + '_' + ti;
+    state.completed[key] = checked;
+
+    const today = new Date().toDateString();
+    if (checked){
+      if (state.lastActionDate !== today){
+        state.streak = (state.lastActionDate === yesterday()) ? state.streak + 1 : 1;
+        state.lastActionDate = today;
+      }
+      sendEvent('task_completed', { week: wi + 1, day: ti + 1 });
+    }
+    saveState();
+    renderMarathon();
+    checkAllDone();
+  }
+
+  function yesterday(){
+    const d = new Date(); d.setDate(d.getDate() - 1); return d.toDateString();
+  }
+
+  function updateBadges(){
+    const doneTotal = Object.values(state.completed).filter(Boolean).length;
+    document.getElementById('streakVal').textContent = state.streak || 0;
+    document.getElementById('totalDone').textContent = doneTotal;
+    const allWeeksDoneWithNotes = plan.every((_, wi) => isWeekComplete(wi) && hasNote(wi));
+    document.getElementById('finishBtn').style.display = allWeeksDoneWithNotes ? 'block' : 'none';
+  }
+
+  function checkAllDone(){ updateBadges(); }
+
+  document.getElementById('finishBtn').addEventListener('click', () => {
+    sendEvent('marathon_finished', {});
+    showScreen('screen-finish');
+  });
+
+  // ---------- Review / gift ----------
+  document.getElementById('submitReview').addEventListener('click', () => {
+    const link = document.getElementById('reviewLink').value.trim();
+    const statusEl = document.getElementById('reviewStatus');
+    if (!link){
+      statusEl.style.color = '#c0392b';
+      statusEl.textContent = 'Встав, будь ласка, посилання на пост чи відео.';
+      return;
+    }
+    statusEl.style.color = '#2fae6a';
+    statusEl.textContent = 'Дякуємо! Перевіримо й надішлемо подарунок у Telegram 🎁';
+    sendEvent('review_submitted', { reviewLink: link });
+  });
+
+  // ---------- Share ----------
+  document.getElementById('copyShareBtn').addEventListener('click', () => {
+    const text = document.getElementById('shareBox').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      document.getElementById('copyShareBtn').textContent = 'Скопійовано ✓';
+    });
+  });
+
+  // ---------- Lead form ----------
+  document.getElementById('toggleForm').addEventListener('click', () => {
+    document.getElementById('leadForm').classList.add('active');
+  });
+  document.getElementById('submitLead').addEventListener('click', () => {
+    const name = document.getElementById('leadName').value.trim();
+    const contact = document.getElementById('leadContact').value.trim();
+    const statusMsg = document.getElementById('statusMsg');
+    if (!name || !contact){
+      statusMsg.style.color = '#c0392b';
+      statusMsg.textContent = "Заповни, будь ласка, ім'я та контакт.";
+      return;
+    }
+    statusMsg.style.color = '#2fae6a';
+    statusMsg.textContent = 'Надсилаємо...';
+    sendEvent('lead_submitted', { name, contact }).then(() => {
+      statusMsg.textContent = "Дякуємо! Ми з тобою зв'яжемось найближчим часом.";
+      document.getElementById('submitLead').disabled = true;
+    }).catch(() => {
+      statusMsg.style.color = '#c0392b';
+      statusMsg.textContent = 'Щось пішло не так. Спробуй ще раз або напиши в Telegram.';
+    });
+  });
+
+  // ---------- Sender ----------
+  function sendEvent(eventType, extra){
+    if (!SCRIPT_URL || SCRIPT_URL.indexOf('PASTE_YOUR') === 0){
+      return Promise.resolve();
+    }
+    const payload = Object.assign({
+      event: eventType,
+      resultKey: resultKey,
+      score: state.answers.reduce((a,b) => a + (b||0), 0),
+      streak: state.streak,
+      totalDone: Object.values(state.completed).filter(Boolean).length,
+      source: 'fitness-finance-marathon',
+      timestamp: new Date().toISOString()
+    }, extra);
+    return fetch(SCRIPT_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: {'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify(payload)
+    });
+  }
+
+  // ---------- Init ----------
+  showQuestion(0);
+  saveState();
+</script>
+</body>
+</html>
