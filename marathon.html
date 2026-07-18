@@ -94,8 +94,9 @@
   <div class="logo"><div class="logo-badge"></div><div class="logo-text">Life Energy</div></div>
 
   <!-- SCREEN -1: PAYWALL -->
-  <div class="screen active" id="screen-paywall">
-    <h1>Фітнес-фінанс: від дивана до мільйона 🏁</h1>
+  <div class="screen" id="screen-paywall">
+    <h1>Марафон "Фітнес-фінанс" 🏁</h1>
+    <p class="sub">Безкоштовний тест ти вже пройшов(-ла) — сам 6-тижневий марафон з трекером і нотатками платний.</p>
     <div class="price-box">
       <div class="amount">€1 / 51 грн</div>
       <div class="sub2">Разовий символічний внесок — 6 тижнів практики</div>
@@ -110,7 +111,7 @@
   </div>
 
   <!-- SCREEN 0: INTRO -->
-  <div class="screen" id="screen-intro">
+  <div class="screen active" id="screen-intro">
     <h1>Ласкаво просимо до марафону 🏁</h1>
     <p class="sub">6 тижнів, по 6 маленьких дій на тиждень (1 день — вихідний). Без тиску — тільки твій темп.</p>
     <p class="sub">Спочатку — швидкий тест (3 хв), щоб зрозуміти, з чого почати саме тобі.</p>
@@ -317,15 +318,15 @@
     "LE-XC0JC","LE-XNTCC","LE-Y9M3Z","LE-Z5OL9"
   ];
 
-  function checkManualUnlockLink(){
+  function checkDirectMarathonLink(){
     const params = new URLSearchParams(window.location.search);
-    return params.get('unlock') === '1';
+    return params.get('marathon') === '1';
   }
 
-  if (state.unlocked || checkManualUnlockLink()){
-    state.unlocked = true;
-    saveState();
-    showScreen('screen-intro');
+  // Пряме посилання виду marathon.html?marathon=1 одразу показує оплату,
+  // минаючи безкоштовний тест.
+  if (!state.unlocked && checkDirectMarathonLink()){
+    showScreen('screen-paywall');
   }
 
   document.getElementById('unlockBtn').addEventListener('click', () => {
@@ -345,7 +346,8 @@
     state.enteredCode = code;
     saveState();
     sendEvent('marathon_unlocked', { code });
-    showScreen('screen-intro');
+    renderMarathon();
+    showScreen('screen-marathon');
   });
 
   // ---------- Intro ----------
@@ -408,6 +410,10 @@
 
   // ---------- Marathon ----------
   document.getElementById('beginMarathonBtn').addEventListener('click', () => {
+    if (!state.unlocked){
+      showScreen('screen-paywall');
+      return;
+    }
     renderMarathon();
     showScreen('screen-marathon');
     sendEvent('marathon_started', {});
